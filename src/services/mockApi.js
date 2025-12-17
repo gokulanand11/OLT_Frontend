@@ -64,7 +64,11 @@ export const mockApi = {
     if (path.includes("/assessments/course/")) {
       return mockQuiz;
     }
-    throw new Error("Endpoint not found");
+    if (path === "/assignments") {
+      return [];
+    }
+    console.log('Mock API: Endpoint not found:', path);
+    return [];
   },
   
   post: async (path, data) => {
@@ -72,13 +76,32 @@ export const mockApi = {
     
     if (path === "/auth/login") {
       return {
-        token: "mock-token",
-        user: { id: "1", name: "Demo User", email: data.email, role: "learner" }
+        token: "mock-token-" + Date.now(),
+        user: { id: "1", name: "Demo User", email: data.email, role: data.email.includes('admin') ? 'admin' : 'learner' },
+        message: "Login successful (Demo Mode)"
+      };
+    }
+    if (path === "/auth/signup") {
+      return {
+        token: "mock-token-" + Date.now(),
+        user: { id: "2", name: data.name, email: data.email, role: data.role || 'learner' },
+        message: "Account created successfully (Demo Mode)"
       };
     }
     if (path.includes("/submit")) {
-      return { score: 85, passed: true };
+      return { score: Math.floor(Math.random() * 30) + 70, passed: true };
     }
-    throw new Error("Endpoint not found");
+    console.log('Mock API: POST endpoint not found:', path);
+    return { success: true };
+  },
+  
+  put: async (path, data) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return { success: true, message: "Updated successfully (Demo Mode)" };
+  },
+  
+  delete: async (path) => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return { success: true, message: "Deleted successfully (Demo Mode)" };
   }
 };

@@ -33,10 +33,12 @@ async function request(path, options = {}) {
   } catch (error) {
     console.error(`API request failed: ${error.message}`);
     // Fallback to mock data if backend is not available
-    if (error.message.includes('fetch')) {
-      console.log('Using mock data as fallback');
+    if (error.name === 'TypeError' || error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
+      console.log('Backend unavailable, using mock data as fallback');
       const { mockApi } = await import('./mockApi.js');
-      return mockApi[options.method?.toLowerCase() || 'get'](path, JSON.parse(options.body || '{}'));
+      const method = options.method?.toLowerCase() || 'get';
+      const body = options.body ? JSON.parse(options.body) : {};
+      return mockApi[method](path, body);
     }
     throw error;
   }
