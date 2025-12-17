@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:4000/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 let token = null;
 
@@ -32,6 +32,12 @@ async function request(path, options = {}) {
     return data;
   } catch (error) {
     console.error(`API request failed: ${error.message}`);
+    // Fallback to mock data if backend is not available
+    if (error.message.includes('fetch')) {
+      console.log('Using mock data as fallback');
+      const { mockApi } = await import('./mockApi.js');
+      return mockApi[options.method?.toLowerCase() || 'get'](path, JSON.parse(options.body || '{}'));
+    }
     throw error;
   }
 }
