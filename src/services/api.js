@@ -1,5 +1,6 @@
 const rawUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
-const API_BASE = rawUrl.replace(/\/+$/, "") + "/api";
+const cleaned = rawUrl.replace(/\/+$/, "");
+const API_BASE = /\/api(\/|$)/i.test(cleaned) ? cleaned : cleaned + "/api";
 
 let token = null;
 
@@ -11,8 +12,10 @@ function headers() {
 
 async function request(path, options = {}) {
   try {
-    console.log(`Making API request: ${options.method || 'GET'} ${API_BASE}${path}`);
-    const res = await fetch(`${API_BASE}${path}`, {
+    // normalize path: avoid double '/api' if caller included it
+    const normalizedPath = path.replace(/^\/api\/?/i, '/');
+    console.log(`Making API request: ${options.method || 'GET'} ${API_BASE}${normalizedPath}`);
+    const res = await fetch(`${API_BASE}${normalizedPath}`, {
       ...options,
       headers: { ...headers(), ...(options.headers || {}) }
     });
