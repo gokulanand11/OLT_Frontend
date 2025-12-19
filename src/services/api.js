@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+const rawUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const API_BASE = rawUrl.replace(/\/+$/, "") + "/api";
 
 let token = null;
 

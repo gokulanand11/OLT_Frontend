@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api.js";
+import { useAuth } from "../contexts/AuthContext.jsx";
 
 export default function Assignments() {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const { loading: authLoading } = useAuth();
+
   useEffect(() => {
+    if (authLoading) return; // wait until auth context initializes (sets token)
+
     const fetchAssignments = async () => {
       try {
         const data = await api.get("/assignments");
@@ -25,7 +30,7 @@ export default function Assignments() {
       }
     };
     fetchAssignments();
-  }, []);
+  }, [authLoading]);
 
   if (loading) {
     return (
