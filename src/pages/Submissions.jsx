@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import api from "../services/api.js";
 
 export default function Submissions() {
   const { assignmentId } = useParams();
@@ -20,24 +21,12 @@ export default function Submissions() {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:4000/api/assignments/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          assignmentId,
-          fileUrl: fileUrl.trim(),
-          note: note.trim()
-        })
+      if (token) api.setToken(token);
+      const data = await api.post('/assignments/submit', {
+        assignmentId,
+        fileUrl: fileUrl.trim(),
+        note: note.trim()
       });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Submission failed');
-      }
 
       setResult({ grade: "Pending review", feedback: "Submitted successfully." });
       setFileUrl("");
